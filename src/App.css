@@ -2,6 +2,32 @@
   text-align: center;
 }
 
+a,
+a:visited {
+  color: #ffffff;
+}
+
+a:hover,
+a:active,
+a:focus {
+  color: #ff7373;
+}
+
+.Back {
+  text-align: center;
+}
+
+.Back-header {
+  background-color: #1e73be;
+  min-height: 76px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  font-size: 17;
+  color: #ffffff;
+}
+
 .App-logo {
   height: 40vmin;
   pointer-events: none;
@@ -15,7 +41,7 @@
 
 .App-header {
   background-color: #282c34;
-  min-height: 100vh;
+  min-height: calc(100vh - 76px);
   display: flex;
   flex-direction: column;
   align-items: center;
