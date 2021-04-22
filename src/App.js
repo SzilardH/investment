@@ -8,10 +8,12 @@ function App() {
   var [profit, setProfit] = useState('0');
   var inputHUF = useRef();
   var inputLength = useRef();
-  var SliderValue = useRef();
   var [sliderMonth, setSliderMonth] = useState('0');
   var [growth, setGrowth] = useState('1.01');
   var [premium, setPremium] = useState('1');
+  var [ind,setind] = useState(0);
+  var [error,setError] = useState('');
+  var [didAdj,setDidAdj] = useState(false);
 
   function simulationStart() {
     inHuf = inputHUF.current.value;
@@ -20,7 +22,9 @@ function App() {
     setTotal(total);
     inMonth = inputLength.current.value;
     setInMonth(inMonth);
-
+    setind(0);
+    setDidAdj(true);
+    setError("");
     if (inHuf < 100000) {
       growth = 1.01;
     } else if (inHuf < 1000000) {
@@ -41,16 +45,73 @@ function App() {
   }
   
   function Simulation() {     
-    sliderMonth = SliderValue.current.value;
-    setSliderMonth(sliderMonth);
-    if (sliderMonth < inMonth) {      
-      total = inHuf * growth ** sliderMonth;
+    //sliderMonth = SliderValue.current.value;
+
+    setSliderMonth(ind);
+    if (ind < inMonth) {      
+      total = inHuf * growth ** ind;
     } else {      
-      total = inHuf * premium * growth ** sliderMonth;
+      total = inHuf * premium * growth ** ind;
     }
     setTotal(total);
     profit = total - inHuf;
     setProfit(profit);
+  }
+
+  function NextYear()
+  {
+      if(ind + 12 <= inMonth)
+      {
+        ind+=12;
+        Simulation();
+        setDidAdj(false);
+        setind(ind);
+      }
+      else
+      {
+        ind = parseInt(inMonth);
+        Simulation();
+      }
+     
+      setError("");
+  }
+
+  function Adjust()
+  {
+    if(didAdj)
+    {
+      setError("You can adjust the investmen only once a year!")
+      return;
+    }
+    
+    if(inHuf != inputHUF.current.value)
+    {
+      inHuf = inputHUF.current.value;
+    }
+    else
+    {
+      inHuf = total;
+    }
+
+    var inMonthv = inputLength.current.value;
+
+    if(inHuf < total)
+    {
+      setError("Adjusment can only incrrease the deposited money!")
+      //err: adjusment can only incrrease the deposited money!
+      return;
+    }
+    if(inMonthv < inMonth )
+    {
+      setError("Adjusment can only increase the deposition time!")
+      //err: adjusment can only increase the deposition time!
+      return;
+    }
+    setInHuf(inHuf);
+    setInMonth(inMonthv);
+    setTotal(inHuf);
+    setDidAdj(true);
+    setError("Adjusment complete!");
   }
 
   return (    
@@ -79,13 +140,14 @@ function App() {
       <p className="testcases">
             <br/>Deposited amount (HUF): <input size="8" ref={inputHUF}/>
             <br/>Deposit lenght (MONTH): <input size="4" ref={inputLength}/>
-            <br/> <br/><button className="button" onClick={simulationStart}> Invest! </button>             
+            <br/> <br/><button className="button" onClick={simulationStart}> Invest! </button>
+            <br/> <br/><button className="button" onClick={Adjust}> Adjust Investment </button>
+            <br/><span>{error}</span>
+            <br/> <br/><button className="button" onClick={NextYear}> Next Year </button>             
             <br/> <br/>Total:{' '}<span>{total}</span> HUF
             <br/>Profit:{' '}<span>{profit}</span> HUF            
             </p>
       <div className="slidecontainer">
-        <input type="range" min="0" max={inMonth} className="slider" defaultValue="0" ref={SliderValue} 
-        onInput={Simulation}></input>
         <p>Month: <span>{sliderMonth}</span></p>
       </div>
     </header>
