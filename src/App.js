@@ -14,6 +14,7 @@ function App() {
   var [ind,setind] = useState(0);
   var [error,setError] = useState('');
   var [didAdj,setDidAdj] = useState(false);
+  var [maxInv,setMaxInv] = useState(false);
 
   function simulationStart() {
     inHuf = inputHUF.current.value;
@@ -25,12 +26,15 @@ function App() {
     setind(0);
     setDidAdj(true);
     setError("");
+    var gb = false;
+    var pb = false;
     if (inHuf < 100000) {
       growth = 1.01;
     } else if (inHuf < 1000000) {
       growth = 1.02;
     } else {
       growth = 1.03;
+      gb = true;
     }
     setGrowth(growth);
 
@@ -40,8 +44,16 @@ function App() {
       premium = 1.02;
     } else {
       premium = 1.05;
+      pb = true;
     }
     setPremium(premium);
+    if(gb && pb)
+    {
+      setMaxInv(true);
+    }else
+    {
+      setMaxInv(false);
+    }
   }
   
   function Simulation() {     
@@ -50,8 +62,17 @@ function App() {
     setSliderMonth(ind);
     if (ind < inMonth) {      
       total = inHuf * growth ** ind;
-    } else {      
-      total = inHuf * premium * growth ** ind;
+    } else {
+      if(maxInv)
+      {
+        //R7 -> If the customer selects the highest categories of amount and period then they can have an extra 3% growth at the end of the investment.
+        total = inHuf * (premium + 0.03) * growth ** ind;
+      }
+      else
+      {
+        total = inHuf * premium * growth ** ind;
+      }     
+      
     }
     setTotal(total);
     profit = total - inHuf;
@@ -83,10 +104,10 @@ function App() {
       setError("You can adjust the investmen only once a year!")
       return;
     }
-    
-    if(inHuf != inputHUF.current.value)
+    var inHufv = inputHUF.current.value;
+    if(inHuf != inHufv)
     {
-      inHuf = inputHUF.current.value;
+      inHuf = inHufv;
     }
     else
     {
