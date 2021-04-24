@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react'
 import './App.css';
+import { Calculate } from './Calculate.js'
 
 function App() {
   var [inHuf, setInHuf] = useState('0');
@@ -20,12 +21,21 @@ function App() {
     inHuf = inputHUF.current.value;
     setInHuf(inHuf);
     total = inputHUF.current.value;
-    setTotal(total);
+    total = Number(total)
+    if(isNaN(total))
+    {
+      setTotal(0);
+    }else
+    {
+      setTotal(total);
+    }
+    
     inMonth = inputLength.current.value;
     setInMonth(inMonth);
     setind(0);
     setDidAdj(true);
     setError("");
+    setProfit(0);
     var gb = false;
     var pb = false;
     if (inHuf < 100000) {
@@ -57,27 +67,21 @@ function App() {
   }
   
   function Simulation() {     
-    //sliderMonth = SliderValue.current.value;
 
     setSliderMonth(ind);
-    if (ind < inMonth) {      
-      total = inHuf * growth ** ind;
-    } else {
-      if(maxInv)
-      {
-        //R7 -> If the customer selects the highest categories of amount and period then they can have an extra 3% growth at the end of the investment.
-        total = inHuf * (premium + 0.03) * growth ** ind;
-      }
-      else
-      {
-        total = inHuf * premium * growth ** ind;
-      }     
-      
+    total = Calculate(ind,inMonth,inHuf,growth,maxInv,premium);
+    if(total == -1)
+    {
+      setError("Please check input values!\nYou can only use numbers!");
+      return;
+      //Error in calculation
     }
     setTotal(total);
     profit = total - inHuf;
     setProfit(profit);
+    setError("");
   }
+  //module.exports = Simulation;
 
   function NextYear()
   {
@@ -94,7 +98,7 @@ function App() {
         Simulation();
       }
      
-      setError("");
+      
   }
 
   function Adjust()
@@ -159,12 +163,12 @@ function App() {
       </p>
       
       <p className="testcases">
-            <br/>Deposited amount (HUF): <input size="8" ref={inputHUF}/>
-            <br/>Deposit lenght (MONTH): <input size="4" ref={inputLength}/>
-            <br/> <br/><button className="button" onClick={simulationStart}> Invest! </button>
-            <br/> <br/><button className="button" onClick={Adjust}> Adjust Investment </button>
+            <br/>Deposited amount (HUF): <input title= "money" size="8" ref={inputHUF}/>
+            <br/>Deposit lenght (MONTH): <input title= "month" size="4" ref={inputLength}/>
+            <br/> <br/><button title= "invest" className="button" onClick={simulationStart}> Invest! </button>
+            <br/> <br/><button title= "adjust" className="button" onClick={Adjust}> Adjust Investment </button>
             <br/><span>{error}</span>
-            <br/> <br/><button className="button" onClick={NextYear}> Next Year </button>             
+            <br/> <br/><button title= "next" className="button" onClick={NextYear}> Next Year </button>             
             <br/> <br/>Total:{' '}<span>{total}</span> HUF
             <br/>Profit:{' '}<span>{profit}</span> HUF            
             </p>
@@ -175,5 +179,4 @@ function App() {
   </div>
   );
 }
-
 export default App;
